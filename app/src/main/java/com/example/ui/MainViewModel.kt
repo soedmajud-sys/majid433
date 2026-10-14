@@ -32,7 +32,8 @@ enum class AppScreen(val titleArabic: String) {
     ORDER_TRACKER("متابعة الطلبات"),
     CONSULTATION("حجز استشارة"),
     ADMIN("لوحة الإدارة"),
-    OFFICIAL_CREDENTIALS("الوثيقة والحقوق")
+    OFFICIAL_CREDENTIALS("الوثيقة والحقوق"),
+    AUTH("بوابة الدخول والتسجيل")
 }
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {

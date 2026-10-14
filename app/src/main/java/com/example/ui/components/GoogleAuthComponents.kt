@@ -149,7 +149,7 @@ fun GoogleSignInBanner(
                             tint = Color.White
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("دخول Google", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("تسجيل الدخول / حساب", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }

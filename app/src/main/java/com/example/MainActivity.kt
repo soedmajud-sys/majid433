@@ -74,6 +74,7 @@ import com.example.ui.components.ContactIntents
 import com.example.ui.components.ServiceDetailDialog
 import com.example.ui.components.ServiceOrderSubmissionDialog
 import com.example.ui.screens.AdminPortalScreen
+import com.example.ui.screens.AuthScreen
 import com.example.ui.screens.ConsultationScreen
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.OfficialCredentialsScreen
@@ -173,7 +174,7 @@ class MainActivity : ComponentActivity() {
                                 actions = {
                                     if (currentUser != null) {
                                         IconButton(
-                                            onClick = { showAccountDialog = true },
+                                            onClick = { viewModel.navigateTo(AppScreen.AUTH) },
                                             modifier = Modifier.testTag("top_app_bar_account_button")
                                         ) {
                                             Icon(
@@ -184,12 +185,18 @@ class MainActivity : ComponentActivity() {
                                         }
                                     } else {
                                         androidx.compose.material3.TextButton(
-                                            onClick = { viewModel.signInWithGoogle(this@MainActivity) },
-                                            enabled = !isAuthLoading,
+                                            onClick = { viewModel.navigateTo(AppScreen.AUTH) },
                                             modifier = Modifier.testTag("top_app_bar_google_login_button")
                                         ) {
+                                            Icon(
+                                                imageVector = Icons.Default.AccountCircle,
+                                                contentDescription = null,
+                                                tint = GreenPrimary,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = if (isAuthLoading) "جاري..." else "دخول Google",
+                                                text = "دخول / تسجيل",
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = GreenPrimary
@@ -335,8 +342,16 @@ class MainActivity : ComponentActivity() {
                                     },
                                     user = currentUser,
                                     isAuthLoading = isAuthLoading,
-                                    onSignInClick = { viewModel.signInWithGoogle(this@MainActivity) },
+                                    onSignInClick = { viewModel.navigateTo(AppScreen.AUTH) },
                                     onSignOutClick = { viewModel.signOut() }
+                                )
+
+                                AppScreen.AUTH -> AuthScreen(
+                                    currentUser = currentUser,
+                                    isLoading = isAuthLoading,
+                                    onSignInWithGoogle = { viewModel.signInWithGoogle(this@MainActivity) },
+                                    onSignOut = { viewModel.signOut() },
+                                    onContinueAsGuest = { viewModel.navigateTo(AppScreen.HOME) }
                                 )
 
                                 AppScreen.SERVICES -> ServicesScreen(
