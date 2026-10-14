@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Authenticated client or supervisor profile",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID" },
+        "displayName": { "type": "string", "description": "Full name of the user" },
+        "email": { "type": "string", "description": "User email address" },
+        "phone": { "type": "string", "description": "Contact phone number" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp of registration" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp of last profile update" }
+      },
+      "required": ["userId", "displayName", "email", "createdAt", "updatedAt"]
+    },
+    "ServiceOrder": {
+      "title": "ServiceOrder",
+      "description": "Government, private platform, or SAP service request submitted by client",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Reference tracking code e.g. WTN-2026-XXXX" },
+        "userId": { "type": "string", "description": "Owner client UID" },
+        "clientName": { "type": "string", "description": "Client or company name" },
+        "clientPhone": { "type": "string", "description": "Client mobile phone" },
+        "clientType": { "type": "string", "description": "Client legal form: أفراد, مؤسسة فردية, شركة" },
+        "serviceTitle": { "type": "string", "description": "Service or SAP module requested" },
+        "platformName": { "type": "string", "description": "Target platform e.g. Qiwa, ZATCA, SAP" },
+        "category": { "type": "string", "description": "Service category" },
+        "notes": { "type": "string", "description": "Client specific notes" },
+        "status": { "type": "string", "description": "Status: قيد المراجعة، جاري المعالجة والتدقيق، في مرحلة الاعتماد، مكتمل بنجاح، بانتظار متطلبات من العميل" },
+        "trackingNotes": { "type": "string", "description": "Latest administrative progress updates" },
+        "estimatedCompletion": { "type": "string", "description": "Estimated turnaround duration" },
+        "isUrgent": { "type": "boolean", "description": "Urgent turnaround flag" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp of creation" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp of update" }
+      },
+      "required": ["id", "userId", "clientName", "clientPhone", "clientType", "serviceTitle", "platformName", "category", "status", "createdAt", "updatedAt"]
+    },
+    "ConsultationBooking": {
+      "title": "ConsultationBooking",
+      "description": "Executive advisory booking with Mr. Majed Saud Al-Omairi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Booking unique ID" },
+        "userId": { "type": "string", "description": "Client UID" },
+        "clientName": { "type": "string", "description": "Booker full name" },
+        "phone": { "type": "string", "description": "Contact phone" },
+        "email": { "type": "string", "description": "Contact email" },
+        "consultationType": { "type": "string", "description": "Topic e.g. SAP ERP, Government compliance" },
+        "preferredDate": { "type": "string", "description": "Requested meeting date" },
+        "preferredTime": { "type": "string", "description": "Requested time slot" },
+        "meetingType": { "type": "string", "description": "Format: حضور بمقر المكتب, اجتماع مرئي افتراضي" },
+        "notes": { "type": "string", "description": "Consultation brief notes" },
+        "supervisor": { "type": "string", "description": "Assigned executive supervisor" },
+        "status": { "type": "string", "description": "Booking status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp of booking" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp of update" }
+      },
+      "required": ["id", "userId", "clientName", "phone", "consultationType", "preferredDate", "preferredTime", "meetingType", "supervisor", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile document owned by the authenticated user"
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": "ServiceOrder",
+      "description": "Client service orders scoped to user ID"
+    },
+    "/users/{userId}/consultations/{consultationId}": {
+      "schema": "ConsultationBooking",
+      "description": "Client consultation bookings scoped to user ID"
+    }
+  }
+}

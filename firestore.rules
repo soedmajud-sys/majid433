@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['userId', 'displayName', 'email', 'createdAt', 'updatedAt'])
+        && data.userId is string && data.userId == request.auth.uid
+        && data.displayName is string && data.displayName.size() > 0 && data.displayName.size() <= 100
+        && data.email is string && data.email.size() > 0 && data.email.size() <= 150
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 30))
+        && data.createdAt is timestamp && data.createdAt <= request.time
+        && data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidServiceOrder(data) {
+      return data.keys().hasAll(['id', 'userId', 'clientName', 'clientPhone', 'clientType', 'serviceTitle', 'platformName', 'category', 'status', 'createdAt', 'updatedAt'])
+        && data.id is string && data.id.size() >= 3 && data.id.size() <= 64
+        && data.userId is string && data.userId == request.auth.uid
+        && data.clientName is string && data.clientName.size() > 0 && data.clientName.size() <= 150
+        && data.clientPhone is string && data.clientPhone.size() > 0 && data.clientPhone.size() <= 30
+        && data.clientType is string && data.clientType.size() > 0 && data.clientType.size() <= 50
+        && data.serviceTitle is string && data.serviceTitle.size() > 0 && data.serviceTitle.size() <= 200
+        && data.platformName is string && data.platformName.size() > 0 && data.platformName.size() <= 100
+        && data.category is string && data.category.size() > 0 && data.category.size() <= 100
+        && data.status is string && data.status.size() > 0 && data.status.size() <= 100
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000))
+        && (!('trackingNotes' in data) || (data.trackingNotes is string && data.trackingNotes.size() <= 1000))
+        && (!('estimatedCompletion' in data) || (data.estimatedCompletion is string && data.estimatedCompletion.size() <= 100))
+        && (!('isUrgent' in data) || data.isUrgent is bool)
+        && data.createdAt is timestamp && data.createdAt <= request.time
+        && data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidConsultation(data) {
+      return data.keys().hasAll(['id', 'userId', 'clientName', 'phone', 'consultationType', 'preferredDate', 'preferredTime', 'meetingType', 'supervisor', 'status', 'createdAt', 'updatedAt'])
+        && data.id is string && data.id.size() >= 1 && data.id.size() <= 64
+        && data.userId is string && data.userId == request.auth.uid
+        && data.clientName is string && data.clientName.size() > 0 && data.clientName.size() <= 150
+        && data.phone is string && data.phone.size() > 0 && data.phone.size() <= 30
+        && (!('email' in data) || (data.email is string && data.email.size() <= 150))
+        && data.consultationType is string && data.consultationType.size() > 0 && data.consultationType.size() <= 150
+        && data.preferredDate is string && data.preferredDate.size() > 0 && data.preferredDate.size() <= 50
+        && data.preferredTime is string && data.preferredTime.size() > 0 && data.preferredTime.size() <= 50
+        && data.meetingType is string && data.meetingType.size() > 0 && data.meetingType.size() <= 50
+        && data.supervisor is string && data.supervisor.size() > 0 && data.supervisor.size() <= 100
+        && data.status is string && data.status.size() > 0 && data.status.size() <= 50
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000))
+        && data.createdAt is timestamp && data.createdAt <= request.time
+        && data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // User Profile
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId)
+                    && isValidUser(request.resource.data)
+                    && request.resource.data.userId == resource.data.userId
+                    && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+
+      // Scoped Service Orders
+      match /orders/{orderId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidServiceOrder(request.resource.data);
+        allow update: if isOwner(userId)
+                      && isValidServiceOrder(request.resource.data)
+                      && request.resource.data.id == resource.data.id
+                      && request.resource.data.userId == resource.data.userId
+                      && request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isOwner(userId);
+      }
+
+      // Scoped Consultation Bookings
+      match /consultations/{consultationId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidConsultation(request.resource.data);
+        allow update: if isOwner(userId)
+                      && isValidConsultation(request.resource.data)
+                      && request.resource.data.id == resource.data.id
+                      && request.resource.data.userId == resource.data.userId
+                      && request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
